@@ -1,0 +1,111 @@
+# =============================================================================
+# Kapacitor — Helm-to-Kubectl Manifest
+# Source: https://github.com/influxdata/helm-charts/tree/master/charts/kapacitor
+# Chart version: 1.4.7, App version: 1.6.4
+# Release name: kapacitor, Namespace: kapacitor
+# Note: influxURL is mandatory — deployment renders only when set
+# =============================================================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kapacitor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kapacitor-kapacitor
+  namespace: kapacitor
+  labels:
+    chart: "kapacitor-1.4.7"
+    release: "kapacitor"
+    heritage: "Helm"
+    app: kapacitor-kapacitor
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kapacitor-kapacitor
+  namespace: kapacitor
+  labels:
+    chart: "kapacitor-1.4.7"
+    release: "kapacitor"
+    heritage: "Helm"
+    app: kapacitor-kapacitor
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9092
+    targetPort: 9092
+    name: api
+  selector:
+    app: kapacitor-kapacitor
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kapacitor-kapacitor
+  namespace: kapacitor
+  labels:
+    app: kapacitor-kapacitor
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kapacitor-kapacitor
+  namespace: kapacitor
+  labels:
+    chart: "kapacitor-1.4.7"
+    release: "kapacitor"
+    heritage: "Helm"
+    app: kapacitor-kapacitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kapacitor-kapacitor
+  template:
+    metadata:
+      labels:
+        app: kapacitor-kapacitor
+    spec:
+      serviceAccountName: kapacitor-kapacitor
+      containers:
+      - name: kapacitor
+        image: "kapacitor:1.6.4-alpine"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KAPACITOR_HOSTNAME
+          value: kapacitor-kapacitor.kapacitor
+        - name: KAPACITOR_INFLUXDB_0_URLS_0
+          value: "http://influxdb-enterprise-data.influxdb-enterprise.svc.cluster.local:8086"
+        - name: KAPACITOR_INFLUXDB_0_USERNAME
+          value: "admin"
+        - name: KAPACITOR_INFLUXDB_0_PASSWORD
+          value: "changeme"
+        - name: KAPACITOR_INFLUXDB_0_INSECURE_SKIP_VERIFY
+          value: "true"
+        ports:
+        - containerPort: 9092
+          hostPort: 9092
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/kapacitor
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+          limits:
+            memory: 2Gi
+            cpu: 2
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: kapacitor-kapacitor
