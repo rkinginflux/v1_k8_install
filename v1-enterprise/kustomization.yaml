@@ -1,1 +1,5 @@
-sdfsdfsfd
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - influxdb-enterprise-v1-deploy.yaml
