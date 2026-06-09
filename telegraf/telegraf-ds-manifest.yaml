@@ -170,6 +170,11 @@ spec:
       - name: telegraf-ds
         image: "telegraf:1.3-alpine"
         imagePullPolicy: "IfNotPresent"
+        ports:
+        - name: syslog-tcp
+          containerPort: 6514
+          hostPort: 6514
+          protocol: TCP
         resources:
           requests:
             memory: 256Mi
