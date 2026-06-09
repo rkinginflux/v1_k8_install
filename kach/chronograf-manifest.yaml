@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: chronograf
-        image: "chronograf:1.11.3-k8syslog"
+        image: "chronograf:1.11.1-alpine"
         imagePullPolicy: IfNotPresent
         env:
         - name: "HOST_PAGE_DISABLED"
