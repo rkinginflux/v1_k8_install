@@ -83,7 +83,7 @@ spec:
         imagePullPolicy: IfNotPresent
         env:
         - name: KAPACITOR_HOSTNAME
-          value: kapacitor-kapacitor.kapacitor
+          value: "http://kapacitor-kapacitor.kapacitor.svc.cluster.local:9092/"
         - name: KAPACITOR_INFLUXDB_0_URLS_0
           value: "http://influxdb-enterprise-data.influxdb-enterprise.svc.cluster.local:8086"
         - name: KAPACITOR_INFLUXDB_0_USERNAME
